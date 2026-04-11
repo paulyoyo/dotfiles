@@ -1,6 +1,17 @@
 # ~/.zshrc
 
 # ─────────────────────────────────────────────────────────────────────
+# True-color announcement
+# macOS Terminal.app supports 24-bit color in recent versions but its
+# terminfo entry (xterm-256color) doesn't advertise it, so most TUIs fall
+# back to 256-color approximations. Setting COLORTERM=truecolor tells
+# starship, neovim, bat, fzf, etc. to emit full RGB escape codes.
+# ─────────────────────────────────────────────────────────────────────
+if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]] || [[ "$TERM_PROGRAM" == "kitty" ]]; then
+  export COLORTERM=truecolor
+fi
+
+# ─────────────────────────────────────────────────────────────────────
 # Variables base
 # ─────────────────────────────────────────────────────────────────────
 export EXTERNAL_MAC="$HOME/external-mac"
