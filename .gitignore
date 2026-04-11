@@ -18,7 +18,7 @@
 !.config/kitty/kitty.conf
 !.config/kitty/Salvaje.conf
 !.config/starship.toml
-!.config/terminal-profiles/
+!.config/starship-terminal.toml!.config/terminal-profiles/
 !.config/terminal-profiles/Salvaje.terminal
 
 # Never commit secrets

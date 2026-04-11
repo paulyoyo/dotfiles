@@ -1,13 +1,16 @@
 # ~/.zshrc
 
 # ─────────────────────────────────────────────────────────────────────
-# True-color announcement
-# macOS Terminal.app supports 24-bit color in recent versions but its
-# terminfo entry (xterm-256color) doesn't advertise it, so most TUIs fall
-# back to 256-color approximations. Setting COLORTERM=truecolor tells
-# starship, neovim, bat, fzf, etc. to emit full RGB escape codes.
+# Terminal capabilities
 # ─────────────────────────────────────────────────────────────────────
-if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]] || [[ "$TERM_PROGRAM" == "kitty" ]]; then
+# kitty supports full 24-bit RGB → use the hex-palette starship config.
+# Apple Terminal.app silently degrades RGB escapes to xterm-256 even
+# with COLORTERM set, so we switch to a starship config that uses
+# named ANSI slots (yellow/blue/purple/...), which Terminal.app resolves
+# through the Salvaje.terminal profile's 16-color palette.
+if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
+  export STARSHIP_CONFIG="$HOME/.config/starship-terminal.toml"
+else
   export COLORTERM=truecolor
 fi
 
