@@ -1,156 +1,196 @@
-# ~/.config/starship.toml
-# Gruvbox Rainbow preset adapted to the Salvaje palette.
-# Structure: powerline segments chained with U+E0B0 (/) and U+E0B2 (\)
-# Requires a Nerd Font (MesloLGS NF is already configured in kitty + Terminal).
-
-palette = "salvaje"
-add_newline = true
+"$schema" = 'https://starship.rs/config-schema.json'
 
 format = """
-[](fg:wisteria)\
+[](color_orange)\
 $os\
 $username\
-[](bg:gold fg:wisteria)\
+[](bg:color_yellow fg:color_orange)\
 $directory\
-[](fg:gold bg:teal)\
+[](fg:color_yellow bg:color_aqua)\
 $git_branch\
 $git_status\
-[](fg:teal bg:lilac)\
-$nodejs\
-$python\
+[](fg:color_aqua bg:color_blue)\
+$c\
+$cpp\
 $rust\
-$ruby\
-$package\
-[](fg:lilac bg:lilac_grey)\
+$golang\
+$nodejs\
+$php\
+$java\
+$kotlin\
+$haskell\
+$python\
+[](fg:color_blue bg:color_bg3)\
 $docker_context\
 $conda\
-[](fg:lilac_grey bg:bg1)\
-$cmd_duration\
+$pixi\
+[](fg:color_bg3 bg:color_bg1)\
 $time\
-[ ](fg:bg1)\
+[ ](fg:color_bg1)\
 $line_break$character"""
 
-# ── Salvaje palette ──────────────────────────────────────────────────
-# Anchors: Deep Lilac, Bright Snow, Golden Glow, Black, Wisteria
-# Derived: Rose, Sage, Teal, Lilac-grey, Bright Lilac
-[palettes.salvaje]
-snow         = "#F7F7F5"   # Bright Snow (primary text)
-black        = "#060100"   # Pure Black (canvas)
-bg1          = "#120E15"   # Near-black with purple undertone
-lilac_grey   = "#2A1A38"   # Lilac-grey (darker segment)
-lilac        = "#8956BA"   # Deep Lilac (languages segment)
-wisteria     = "#C599E2"   # Wisteria (user/os segment)
-gold         = "#EAD82F"   # Golden Glow (directory segment)
-teal         = "#6AAFB8"   # Teal (git segment)
-sage         = "#8FBF6C"   # Sage (success)
-rose         = "#E0637A"   # Rose (error)
-bright_lilac = "#A474D4"   # Bright Lilac (accent)
+palette = 'salvaje'
 
-# ── OS icon ──────────────────────────────────────────────────────────
+# Gruvbox Rainbow preset → Salvaje palette.
+# Variable names kept identical to the upstream preset so the format
+# string above is a 1:1 copy of https://starship.rs/presets/gruvbox-rainbow
+# Only the hex values are swapped:
+#
+#   color_fg0     Bright Snow
+#   color_bg1     Near-black (purple undertone)
+#   color_bg3     Lilac-grey
+#   color_blue    Deep Lilac        (Salvaje's blue substitute)
+#   color_aqua    Teal
+#   color_green   Sage
+#   color_orange  Wisteria
+#   color_purple  Bright Lilac
+#   color_red     Rose
+#   color_yellow  Golden Glow
+[palettes.salvaje]
+color_fg0    = '#F7F7F5'
+color_bg1    = '#120E15'
+color_bg3    = '#2A1A38'
+color_blue   = '#8956BA'
+color_aqua   = '#6AAFB8'
+color_green  = '#8FBF6C'
+color_orange = '#C599E2'
+color_purple = '#A474D4'
+color_red    = '#E0637A'
+color_yellow = '#EAD82F'
+
 [os]
 disabled = false
-style = "bg:wisteria fg:black"
+style = "bg:color_orange fg:color_fg0"
 
 [os.symbols]
-Macos = " "
-Linux = " "
-Windows = " "
+Windows = "󰍲"
+Ubuntu = "󰕈"
+SUSE = ""
+Raspbian = "󰐿"
+Mint = "󰣭"
+Macos = "󰀵"
+Manjaro = ""
+Linux = "󰌽"
+Gentoo = "󰣨"
+Fedora = "󰣛"
+Alpine = ""
+Amazon = ""
+Android = ""
+AOSC = ""
+Arch = "󰣇"
+Artix = "󰣇"
+EndeavourOS = ""
+CentOS = ""
+Debian = "󰣚"
+Redhat = "󱄛"
+RedHatEnterprise = "󱄛"
+Pop = ""
 
-# ── Username ─────────────────────────────────────────────────────────
 [username]
 show_always = true
-style_user = "bg:wisteria fg:black"
-style_root = "bg:wisteria fg:rose"
+style_user = "bg:color_orange fg:color_fg0"
+style_root = "bg:color_orange fg:color_fg0"
 format = '[ $user ]($style)'
 
-# ── Directory ────────────────────────────────────────────────────────
 [directory]
-style = "fg:black bg:gold"
+style = "fg:color_fg0 bg:color_yellow"
 format = "[ $path ]($style)"
-truncation_length = 4
+truncation_length = 3
 truncation_symbol = "…/"
-read_only = " 🔒"
-read_only_style = "fg:rose bg:gold"
 
 [directory.substitutions]
 "Documents" = "󰈙 "
 "Downloads" = " "
-"Music" = " "
+"Music" = "󰝚 "
 "Pictures" = " "
 "Developer" = "󰲋 "
 
-# ── Git ──────────────────────────────────────────────────────────────
 [git_branch]
 symbol = ""
-style = "bg:teal"
-format = '[[ $symbol $branch ](fg:black bg:teal)]($style)'
+style = "bg:color_aqua"
+format = '[[ $symbol $branch ](fg:color_fg0 bg:color_aqua)]($style)'
 
 [git_status]
-style = "bg:teal"
-format = '[[($all_status$ahead_behind )](fg:black bg:teal)]($style)'
-conflicted  = "="
-ahead       = "⇡${count}"
-behind      = "⇣${count}"
-diverged    = "⇕⇡${ahead_count}⇣${behind_count}"
-up_to_date  = ""
-untracked   = "?"
-stashed     = "$"
-modified    = "!"
-staged      = "+"
-renamed     = "»"
-deleted     = "✘"
+style = "bg:color_aqua"
+format = '[[($all_status$ahead_behind )](fg:color_fg0 bg:color_aqua)]($style)'
 
-# ── Language runtimes ────────────────────────────────────────────────
 [nodejs]
 symbol = ""
-style = "bg:lilac"
-format = '[[ $symbol ($version) ](fg:snow bg:lilac)]($style)'
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
 
-[python]
-symbol = ""
-style = "bg:lilac"
-format = '[[ $symbol ($version)(\($virtualenv\)) ](fg:snow bg:lilac)]($style)'
+[c]
+symbol = " "
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[cpp]
+symbol = " "
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
 
 [rust]
 symbol = ""
-style = "bg:lilac"
-format = '[[ $symbol ($version) ](fg:snow bg:lilac)]($style)'
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
 
-[ruby]
+[golang]
 symbol = ""
-style = "bg:lilac"
-format = '[[ $symbol ($version) ](fg:snow bg:lilac)]($style)'
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
 
-[package]
-symbol = "󰏗 "
-style = "bg:lilac"
-format = '[[ $symbol ($version) ](fg:snow bg:lilac)]($style)'
+[php]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
 
-# ── Container / env ──────────────────────────────────────────────────
+[java]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[kotlin]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[haskell]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[python]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
 [docker_context]
 symbol = ""
-style = "bg:lilac_grey"
-format = '[[ $symbol ($context) ](fg:teal bg:lilac_grey)]($style)'
+style = "bg:color_bg3"
+format = '[[ $symbol( $context) ](fg:#88CCD4 bg:color_bg3)]($style)'
 
 [conda]
-style = "bg:lilac_grey"
-format = '[[ $symbol($environment) ](fg:sage bg:lilac_grey)]($style)'
+style = "bg:color_bg3"
+format = '[[ $symbol( $environment) ](fg:#88CCD4 bg:color_bg3)]($style)'
 
-# ── Command duration ─────────────────────────────────────────────────
-[cmd_duration]
-min_time = 2000
-style = "bg:bg1"
-format = '[[ 󱎫 $duration ](fg:gold bg:bg1)]($style)'
+[pixi]
+style = "bg:color_bg3"
+format = '[[ $symbol( $version)( $environment) ](fg:color_fg0 bg:color_bg3)]($style)'
 
-# ── Time ─────────────────────────────────────────────────────────────
 [time]
 disabled = false
 time_format = "%R"
-style = "bg:bg1"
-format = '[[  $time ](fg:snow bg:bg1)]($style)'
+style = "bg:color_bg1"
+format = '[[  $time ](fg:color_fg0 bg:color_bg1)]($style)'
 
-# ── Prompt character ─────────────────────────────────────────────────
+[line_break]
+disabled = false
+
 [character]
-success_symbol = "[❯](bold fg:sage)"
-error_symbol   = "[❯](bold fg:rose)"
-vimcmd_symbol  = "[❮](bold fg:wisteria)"
+disabled = false
+success_symbol = '[](bold fg:color_green)'
+error_symbol = '[](bold fg:color_red)'
+vimcmd_symbol = '[](bold fg:color_green)'
+vimcmd_replace_one_symbol = '[](bold fg:color_purple)'
+vimcmd_replace_symbol = '[](bold fg:color_purple)'
+vimcmd_visual_symbol = '[](bold fg:color_yellow)'
