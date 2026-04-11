@@ -252,6 +252,7 @@ The `.secrets` file is listed under `# Never commit secrets` in `.gitignore`. Ke
 | **kitty** | GT Pressura LCGV Mono 18pt + MesloLGS NF fallback via `symbol_map` | `kitty/Salvaje.conf` | `starship.toml` (24-bit RGB) | Primary terminal. Nerd Font glyph ranges routed to MesloLGS NF automatically. |
 | **Terminal.app** | GTPressuraLCGVMono-Regular 18pt + native macOS font substitution | `Salvaje.terminal` profile | `starship-terminal.toml` (16-color ANSI) | Falls back to named ANSI for colors. Terminal.app has no symbol_map so icon glyphs rely on macOS native font fallback — install MesloLGS NF too so macOS picks it as fallback. |
 | **zellij** | (inherits from host terminal) | `zellij/themes/salvaje.kdl` | — | Layout includes zellaude activity bar |
+| **Neovide** (GUI) | GT Pressura LCGV Mono 16pt + MesloLGS NF fallback | uses pwnvim config (~/.config/pwnvim) via NVIM_APPNAME | — | Separate distro (pwnwriter/pwnvim) to keep the GUI experience distinct from terminal LazyVim. See pwnvim section below. |
 
 `.zshrc` automatically switches `$STARSHIP_CONFIG` based on `$TERM_PROGRAM`:
 
@@ -310,6 +311,54 @@ Zellij runs with the Salvaje theme and the [zellaude](https://github.com/ishefi/
 Click any tab to switch; click a `⚠` tab to jump straight to the pane asking for permission.
 
 ---
+
+## Neovide + pwnvim (GUI editor)
+
+Terminal `nvim` uses **LazyVim** at `~/.config/nvim/`. The Neovide GUI uses a completely separate distro — **[pwnwriter/pwnvim](https://github.com/pwnwriter/pwnvim)** — at `~/.config/pwnvim/`, so the two don't share plugins, keymaps, or state. Isolation is handled via Neovim's native `NVIM_APPNAME` env var.
+
+### How it's wired
+
+```
+Neovide.app launch
+    ↓ reads ~/.config/neovide/config.toml
+    ↓ neovim-bin = "$HOME/.local/bin/nvim-pwnvim"
+    ↓
+nvim-pwnvim wrapper (bash script)
+    ↓ export NVIM_APPNAME=pwnvim
+    ↓ exec /opt/homebrew/bin/nvim
+    ↓
+neovim loads:
+    config: ~/.config/pwnvim/
+    data:   ~/.local/share/pwnvim/
+    cache:  ~/.cache/pwnvim/
+    state:  ~/.local/state/pwnvim/
+```
+
+Terminal `nvim` is untouched — it still uses `~/.config/nvim/` (LazyVim).
+
+### Install on a new machine
+
+```bash
+# 1. Clone pwnvim into its own NVIM_APPNAME directory
+git clone https://github.com/pwnwriter/pwnvim ~/.config/pwnvim
+
+# 2. Bootstrap pwnvim plugins (it uses vim.pack, not lazy.nvim)
+NVIM_APPNAME=pwnvim nvim --headless "+quit" 2>/dev/null
+# pwnvim's init.lua auto-installs plugins on first launch via vim.pack.add()
+```
+
+The `config checkout` from the bare-repo flow will restore:
+- `~/.local/bin/nvim-pwnvim` — the wrapper script
+- `~/.config/neovide/config.toml` — routes Neovide through the wrapper
+
+After cloning pwnvim and running the bootstrap command, launch Neovide normally (Spotlight, Dock, or `/Applications/Neovide.app/Contents/MacOS/neovide` from the terminal) and it will use pwnvim.
+
+### Update pwnvim
+
+```bash
+cd ~/.config/pwnvim && git pull
+NVIM_APPNAME=pwnvim nvim --headless "+quit"  # re-run vim.pack sync if needed
+```
 
 ## Uninstall
 

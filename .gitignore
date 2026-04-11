@@ -43,6 +43,22 @@
 !.config/nvim/colors/
 !.config/nvim/colors/**
 
+# pwnvim is NOT tracked here — it's an upstream distro managed via git
+# pull inside ~/.config/pwnvim. Only the Neovide wrapper + config that
+# route the GUI to it live in this repo.
+# .config/pwnvim/ intentionally absent from un-ignores.
+
+# Neovide GUI config
+!.config/neovide/
+!.config/neovide/config.toml
+
+# nvim-pwnvim launcher (.local/bin wrapper)
+!.local/
+.local/*
+!.local/bin/
+.local/bin/*
+!.local/bin/nvim-pwnvim
+
 # NOT tracked:
 #   .config/zellij/plugins/*.wasm   (binary, self-updates from GitHub)
 #   .config/zellij/plugins/*.sh     (auto-generated hook script)

@@ -1,0 +1,11 @@
+#!/bin/bash
+# ~/.local/bin/nvim-pwnvim
+#
+# Launches neovim using the pwnvim config (~/.config/pwnvim, ~/.local/share/pwnvim).
+# Neovide's config.toml points neovim-bin at this wrapper so the GUI client always
+# uses pwnvim regardless of how it's launched (Spotlight, Dock, CLI, Finder).
+#
+# Terminal `nvim` is unaffected — it continues to use LazyVim at ~/.config/nvim.
+
+export NVIM_APPNAME=pwnvim
+exec /opt/homebrew/bin/nvim "$@"

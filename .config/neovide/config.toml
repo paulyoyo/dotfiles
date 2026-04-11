@@ -1,0 +1,22 @@
+# ~/.config/neovide/config.toml
+# Routes Neovide to the pwnvim config (~/.config/pwnvim) via a wrapper
+# that sets NVIM_APPNAME=pwnvim. Terminal nvim continues to use the
+# LazyVim config at ~/.config/nvim unchanged.
+#
+# To update pwnvim: cd ~/.config/pwnvim && git pull && NVIM_APPNAME=pwnvim nvim --headless "+Lazy! sync" +qa
+
+neovim-bin = "/Volumes/El Gato/External Mac/.local/bin/nvim-pwnvim"
+
+# Performance / appearance tuning for Neovide on macOS + Salvaje theme
+frame            = "full"
+maximized        = false
+no-idle          = false
+srgb             = false
+tabs             = true
+theme            = "dark"
+title-hidden     = false
+vsync            = true
+
+[font]
+normal = ["GT Pressura LCGV Mono", "MesloLGS Nerd Font Mono"]
+size   = 16
