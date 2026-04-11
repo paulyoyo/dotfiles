@@ -15,8 +15,17 @@
 # inconsistent across Neovide versions).
 
 export NVIM_APPNAME=pwnvim
+
+# pwnvim's catppuccin config uses `background = { light = "latte",
+# dark = "mocha" }`, i.e. it picks the flavor from vim.o.background
+# at colorscheme load time. Neovim defaults to `background=dark` which
+# gives mocha — but the pwnvim README screenshot is latte (cream, warm).
+# Setting background via `--cmd` runs BEFORE init.lua, so catppuccin
+# sees `light` when it loads and picks latte instead.
+#
 # Neovide guifont format: comma-separated font list, size (:hN) appears
 # ONCE at the end. Spaces in font family names escaped with backslash.
 exec /opt/homebrew/bin/nvim \
+  --cmd 'set background=light' \
   -c 'set guifont=GT\ Pressura\ LCGV\ Mono,MesloLGS\ Nerd\ Font\ Mono:h18' \
   "$@"
