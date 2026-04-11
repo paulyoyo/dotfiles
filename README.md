@@ -195,6 +195,20 @@ curl -sL --fail -o ~/.config/zellij/plugins/zellaude.wasm \
 
 The plugin self-installs its Claude Code hook on first load — no further action needed. Start a new zellij session (`zellij` in a fresh kitty window) and the zellaude bar appears at the top.
 
+**First-run permission prompt** — on the very first session after installing zellaude, zellij shows a permission prompt at the top of the screen:
+
+> `This plugin asks permission to: ReadApplicationState, ChangeApplicationState, RunCommands, ReadCliPipes, MessageAndLaunchOtherPlugins. Allow? (y/n)`
+
+This dotfiles setup uses `default_mode "locked"` in `config.kdl`, so **you must exit lock mode first** to answer the prompt. Otherwise your `y` keystroke goes to the shell instead of to zellij.
+
+```
+Ctrl+G     → exit LOCK mode into NORMAL mode
+y          → grant the permissions (zellij persists this to its cache, so you only do it once)
+Ctrl+G     → (optional) re-enter LOCK mode
+```
+
+Zellij has no supported way to pre-grant plugin permissions via a config file as of 0.42. This is a one-time per-machine step.
+
 ### Symlink kitty CLI (optional)
 
 ```bash
