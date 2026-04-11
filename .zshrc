@@ -133,3 +133,17 @@ add-zsh-hook precmd _set_window_title
 # Starship prompt  (https://starship.rs/)
 # ─────────────────────────────────────────────────────────────────────
 eval "$(starship init zsh)"
+
+# ─────────────────────────────────────────────────────────────────────
+# Salvaje startup banner
+# Prints only on a fresh kitty window — not subshells, not zellij splits,
+# not tmux reattaches, not non-kitty terminals, not non-interactive shells.
+# ─────────────────────────────────────────────────────────────────────
+if [[ -o interactive ]] \
+   && [[ "$TERM_PROGRAM" == "kitty" ]] \
+   && [[ "$SHLVL" -eq 1 ]] \
+   && [[ -z "$ZELLIJ" ]] \
+   && [[ -z "$TMUX" ]] \
+   && [[ -x "$HOME/.config/kitty/salvaje-banner.sh" ]]; then
+  "$HOME/.config/kitty/salvaje-banner.sh"
+fi
