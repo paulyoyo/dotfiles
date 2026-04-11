@@ -24,4 +24,4 @@ vsync            = true
 
 [font]
 normal = ["GT Pressura LCGV Mono", "MesloLGS Nerd Font Mono"]
-size   = 16
+size   = 18

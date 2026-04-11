@@ -18,5 +18,5 @@ export NVIM_APPNAME=pwnvim
 # Neovide guifont format: comma-separated font list, size (:hN) appears
 # ONCE at the end. Spaces in font family names escaped with backslash.
 exec /opt/homebrew/bin/nvim \
-  -c 'set guifont=GT\ Pressura\ LCGV\ Mono,MesloLGS\ Nerd\ Font\ Mono:h16' \
+  -c 'set guifont=GT\ Pressura\ LCGV\ Mono,MesloLGS\ Nerd\ Font\ Mono:h18' \
   "$@"
