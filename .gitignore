@@ -6,6 +6,7 @@
 
 # Un-ignore the files/dirs we actually track
 !.gitignore
+!README.md
 !.zshrc
 !.zprofile
 !.zshenv
