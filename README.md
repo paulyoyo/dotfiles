@@ -88,6 +88,25 @@ brew install --cask font-meslo-lg-nerd-font
 - **rbenv** Ruby versions — installed at `/opt/rbenv` (adjust `RBENV_ROOT` in `.zshrc` if different)
 - **Rust** (only if building zellaude from source): <https://rustup.rs>
 
+### Fonts
+
+Two font families are used:
+
+1. **MesloLGS Nerd Font Mono** — fallback for icon glyphs (starship OS icons, LazyVim file-tree icons, zellaude activity symbols, braille art). Install via Homebrew cask (already in the list above).
+
+2. **GT Pressura LCGV Mono** — primary code/terminal font. **Commercial font from [Grilli Type](https://www.grillitype.com/typeface/gt-pressura). NOT tracked in this public repo due to licensing.** On a new machine you must install it yourself:
+   ```bash
+   # Copy your licensed .ttf files into ~/Library/Fonts/
+   cp /path/to/licensed/GT-Pressura-LCGV-Mono-*.ttf ~/Library/Fonts/
+   ```
+   Required files at minimum:
+   - `GT-Pressura-LCGV-Mono-Regular.ttf` (PostScript: `GTPressuraLCGVMono-Regular`)
+   - `GT-Pressura-LCGV-Mono-Bold.ttf`
+   - `GT-Pressura-LCGV-Mono-Regular-Italic.ttf`
+   - `GT-Pressura-LCGV-Mono-Bold-Italic.ttf`
+
+   Without these files, kitty and Terminal.app will fall back to whatever macOS substitutes. Functional but not matching the intended look.
+
 ---
 
 ## Install on a new machine
@@ -230,8 +249,8 @@ The `.secrets` file is listed under `# Never commit secrets` in `.gitignore`. Ke
 
 | Terminal | Font | Theme source | Starship config | Notes |
 |---|---|---|---|---|
-| **kitty** | MesloLGS Nerd Font Mono 18pt | `kitty/Salvaje.conf` | `starship.toml` (24-bit RGB) | Primary terminal |
-| **Terminal.app** | MesloLGSNFM-Regular 18pt | `Salvaje.terminal` profile | `starship-terminal.toml` (16-color ANSI) | Falls back to named ANSI because Terminal.app degrades RGB escapes to xterm-256 |
+| **kitty** | GT Pressura LCGV Mono 18pt + MesloLGS NF fallback via `symbol_map` | `kitty/Salvaje.conf` | `starship.toml` (24-bit RGB) | Primary terminal. Nerd Font glyph ranges routed to MesloLGS NF automatically. |
+| **Terminal.app** | GTPressuraLCGVMono-Regular 18pt + native macOS font substitution | `Salvaje.terminal` profile | `starship-terminal.toml` (16-color ANSI) | Falls back to named ANSI for colors. Terminal.app has no symbol_map so icon glyphs rely on macOS native font fallback — install MesloLGS NF too so macOS picks it as fallback. |
 | **zellij** | (inherits from host terminal) | `zellij/themes/salvaje.kdl` | — | Layout includes zellaude activity bar |
 
 `.zshrc` automatically switches `$STARSHIP_CONFIG` based on `$TERM_PROGRAM`:
