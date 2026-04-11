@@ -99,6 +99,23 @@ git clone https://github.com/Aloxaf/fzf-tab ~/.zsh/plugins/fzf-tab
 
 To update later: `cd ~/.zsh/plugins/fzf-tab && git pull`.
 
+### Fix compinit insecure-directories warning
+
+After installing `zsh-autosuggestions` / `zsh-completions`, the very first zsh startup may prompt:
+
+> `zsh compinit: insecure directories, run compaudit for list.`
+> `Ignore insecure directories and continue [y] or abort compinit [n]?`
+
+This is because `/opt/homebrew/share` is owned by `admin` with group-write permission, which zsh's compinit won't trust. The one-time fix:
+
+```bash
+chmod go-w /opt/homebrew/share
+chmod -R go-w /opt/homebrew/share/zsh
+rm -f ~/.zcompdump*
+```
+
+Then open a new shell. The warning is gone and completion works normally. If a future `brew upgrade` resets the permissions, run the same three lines again.
+
 ### Other
 
 - **NVM** for Node: <https://github.com/nvm-sh/nvm>
