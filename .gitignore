@@ -25,6 +25,13 @@
 !.config/zellij/config.kdl
 !.config/zellij/themes/
 !.config/zellij/themes/salvaje.kdl
+!.config/zellij/layouts/
+!.config/zellij/layouts/default.kdl
+
+# NOT tracked:
+#   .config/zellij/plugins/*.wasm   (binary, self-updates from GitHub)
+#   .config/zellij/plugins/*.sh     (auto-generated hook script)
+#   .config/zellij/plugins/*.json   (per-machine plugin state)
 
 # Never commit secrets
 .secrets
