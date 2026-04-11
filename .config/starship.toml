@@ -1,0 +1,111 @@
+# ~/.config/starship.toml — Salvaje palette
+# Anchors: Deep Lilac #8956BA · Bright Snow #F7F7F5 · Golden Glow #EAD82F
+#          Black #060100 · Wisteria #C599E2
+# Derived: Rose #E0637A · Sage #8FBF6C · Teal #6AAFB8 · Lilac-grey #2A1A38
+
+add_newline = true
+palette = "salvaje"
+
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$nodejs\
+$python\
+$rust\
+$ruby\
+$package\
+$cmd_duration\
+$line_break\
+$character"""
+
+[palettes.salvaje]
+lilac      = "#8956BA"
+snow       = "#F7F7F5"
+gold       = "#EAD82F"
+black      = "#060100"
+wisteria   = "#C599E2"
+rose       = "#E0637A"
+sage       = "#8FBF6C"
+teal       = "#6AAFB8"
+lilac_grey = "#2A1A38"
+bright_lilac = "#A474D4"
+
+# ── Window title (user@host: cwd) ────────────────────────────────────
+# Starship's built-in title feature — zsh will receive the OSC 0 sequence.
+[username]
+show_always = true
+format = "[$user]($style)"
+style_user = "bold wisteria"
+style_root = "bold rose"
+
+[hostname]
+ssh_only = false
+format = "[@$hostname]($style) "
+style = "bold lilac"
+trim_at = "."
+disabled = false
+
+[directory]
+style = "bold gold"
+truncation_length = 4
+truncate_to_repo = false
+format = "[$path]($style)[$read_only]($read_only_style) "
+read_only = " 🔒"
+read_only_style = "rose"
+
+[character]
+success_symbol = "[❯](bold sage)"
+error_symbol   = "[❯](bold rose)"
+vimcmd_symbol  = "[❮](bold wisteria)"
+
+[git_branch]
+symbol = " "
+style = "bold wisteria"
+format = "on [$symbol$branch]($style) "
+
+[git_status]
+style = "bold rose"
+format = "([$all_status$ahead_behind]($style) )"
+conflicted = "="
+ahead      = "⇡${count}"
+behind     = "⇣${count}"
+diverged   = "⇕⇡${ahead_count}⇣${behind_count}"
+up_to_date = ""
+untracked  = "?"
+stashed    = "$"
+modified   = "!"
+staged     = "+"
+renamed    = "»"
+deleted    = "✘"
+
+[cmd_duration]
+min_time = 2000
+format = "took [$duration]($style) "
+style = "bold gold"
+
+[nodejs]
+symbol = " "
+style = "bold sage"
+format = "via [$symbol($version )]($style)"
+
+[python]
+symbol = " "
+style = "bold gold"
+format = 'via [${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+
+[rust]
+symbol = " "
+style = "bold rose"
+format = "via [$symbol($version )]($style)"
+
+[ruby]
+symbol = " "
+style = "bold rose"
+format = "via [$symbol($version )]($style)"
+
+[package]
+symbol = "📦 "
+style = "bold teal"

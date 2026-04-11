@@ -1,0 +1,25 @@
+# Bare dotfiles repo .gitignore
+# Default: ignore everything in $HOME, explicitly un-ignore tracked files.
+# This prevents `config status` from showing thousands of untracked files.
+
+*
+
+# Un-ignore the files/dirs we actually track
+!.gitignore
+!.zshrc
+!.zprofile
+!.zshenv
+!.secrets.example
+
+# Kitty config
+!.config/
+.config/*
+!.config/kitty/
+!.config/kitty/kitty.conf
+!.config/kitty/Salvaje.conf
+!.config/starship.toml
+!.config/terminal-profiles/
+!.config/terminal-profiles/Salvaje.terminal
+
+# Never commit secrets
+.secrets
