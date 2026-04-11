@@ -21,6 +21,10 @@
 !.config/starship-terminal.toml
 !.config/terminal-profiles/
 !.config/terminal-profiles/Salvaje.terminal
+!.config/zellij/
+!.config/zellij/config.kdl
+!.config/zellij/themes/
+!.config/zellij/themes/salvaje.kdl
 
 # Never commit secrets
 .secrets
