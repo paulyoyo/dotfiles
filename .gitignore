@@ -19,6 +19,7 @@
 !.config/kitty/kitty.conf
 !.config/kitty/Salvaje.conf
 !.config/kitty/salvaje-banner.sh
+!.config/kitty/salvaje-banner.txt
 !.config/starship.toml
 !.config/starship-terminal.toml
 !.config/terminal-profiles/
