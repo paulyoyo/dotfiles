@@ -5,7 +5,12 @@
 #
 # To update pwnvim: cd ~/.config/pwnvim && git pull && NVIM_APPNAME=pwnvim nvim --headless "+Lazy! sync" +qa
 
-neovim-bin = "/Volumes/El Gato/External Mac/.local/bin/nvim-pwnvim"
+# Neovide passes neovim-bin through `zsh -l -c <path>` without quoting,
+# so any space in the path fails ("zsh:1: no such file or directory:
+# /Volumes/El"). Point at a symlink in /opt/homebrew/bin (no spaces)
+# that resolves to the real wrapper at $HOME/.local/bin/nvim-pwnvim.
+# The symlink is created by the post-checkout step documented in README.
+neovim-bin = "/opt/homebrew/bin/nvim-pwnvim"
 
 # Performance / appearance tuning for Neovide on macOS + Salvaje theme
 frame            = "full"

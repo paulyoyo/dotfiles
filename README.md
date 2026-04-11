@@ -342,16 +342,22 @@ Terminal `nvim` is untouched — it still uses `~/.config/nvim/` (LazyVim).
 # 1. Clone pwnvim into its own NVIM_APPNAME directory
 git clone https://github.com/pwnwriter/pwnvim ~/.config/pwnvim
 
-# 2. Bootstrap pwnvim plugins (it uses vim.pack, not lazy.nvim)
+# 2. Bootstrap pwnvim plugins (it uses Neovim 0.12 vim.pack, not lazy.nvim)
 NVIM_APPNAME=pwnvim nvim --headless "+quit" 2>/dev/null
 # pwnvim's init.lua auto-installs plugins on first launch via vim.pack.add()
+
+# 3. Create the no-space symlink that Neovide's neovim-bin points at
+# Neovide passes neovim-bin through `zsh -l -c <path>` UNQUOTED, so paths
+# with spaces (like $HOME here) break. The symlink lives at a no-space path
+# under /opt/homebrew/bin and resolves to the real wrapper in $HOME.
+ln -sf "$HOME/.local/bin/nvim-pwnvim" /opt/homebrew/bin/nvim-pwnvim
 ```
 
 The `config checkout` from the bare-repo flow will restore:
-- `~/.local/bin/nvim-pwnvim` — the wrapper script
-- `~/.config/neovide/config.toml` — routes Neovide through the wrapper
+- `~/.local/bin/nvim-pwnvim` — the wrapper script (tracked)
+- `~/.config/neovide/config.toml` — points neovim-bin at /opt/homebrew/bin/nvim-pwnvim
 
-After cloning pwnvim and running the bootstrap command, launch Neovide normally (Spotlight, Dock, or `/Applications/Neovide.app/Contents/MacOS/neovide` from the terminal) and it will use pwnvim.
+After step 3, launch Neovide normally (Spotlight, Dock, `/opt/homebrew/bin/neovide`, or `/Applications/Neovide.app/Contents/MacOS/neovide` from the terminal) and it will use pwnvim with GT Pressura LCGV Mono at size 16 + MesloLGS NF fallback for icon glyphs.
 
 ### Update pwnvim
 
