@@ -135,15 +135,8 @@ add-zsh-hook precmd _set_window_title
 eval "$(starship init zsh)"
 
 # ─────────────────────────────────────────────────────────────────────
-# Salvaje startup banner
-# Prints only on a fresh kitty window — not subshells, not zellij splits,
-# not tmux reattaches, not non-kitty terminals, not non-interactive shells.
+# Salvaje startup banner is now printed by ~/.config/kitty/salvaje-shell.sh
+# (configured as kitty's `shell` wrapper in kitty.conf). That way it fires
+# on every new kitty OS window or tab, before zsh or zellij touch the
+# screen — much more reliable than gating from .zshrc.
 # ─────────────────────────────────────────────────────────────────────
-if [[ -o interactive ]] \
-   && [[ "$TERM_PROGRAM" == "kitty" ]] \
-   && [[ "$SHLVL" -eq 1 ]] \
-   && [[ -z "$ZELLIJ" ]] \
-   && [[ -z "$TMUX" ]] \
-   && [[ -x "$HOME/.config/kitty/salvaje-banner.sh" ]]; then
-  "$HOME/.config/kitty/salvaje-banner.sh"
-fi
