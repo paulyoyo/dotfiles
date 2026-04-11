@@ -1,111 +1,156 @@
-# ~/.config/starship.toml — Salvaje palette
-# Anchors: Deep Lilac #8956BA · Bright Snow #F7F7F5 · Golden Glow #EAD82F
-#          Black #060100 · Wisteria #C599E2
-# Derived: Rose #E0637A · Sage #8FBF6C · Teal #6AAFB8 · Lilac-grey #2A1A38
+# ~/.config/starship.toml
+# Gruvbox Rainbow preset adapted to the Salvaje palette.
+# Structure: powerline segments chained with U+E0B0 (/) and U+E0B2 (\)
+# Requires a Nerd Font (MesloLGS NF is already configured in kitty + Terminal).
 
-add_newline = true
 palette = "salvaje"
+add_newline = true
 
 format = """
+[](fg:wisteria)\
+$os\
 $username\
-$hostname\
+[](bg:gold fg:wisteria)\
 $directory\
+[](fg:gold bg:teal)\
 $git_branch\
 $git_status\
+[](fg:teal bg:lilac)\
 $nodejs\
 $python\
 $rust\
 $ruby\
 $package\
+[](fg:lilac bg:lilac_grey)\
+$docker_context\
+$conda\
+[](fg:lilac_grey bg:bg1)\
 $cmd_duration\
-$line_break\
-$character"""
+$time\
+[ ](fg:bg1)\
+$line_break$character"""
 
+# ── Salvaje palette ──────────────────────────────────────────────────
+# Anchors: Deep Lilac, Bright Snow, Golden Glow, Black, Wisteria
+# Derived: Rose, Sage, Teal, Lilac-grey, Bright Lilac
 [palettes.salvaje]
-lilac      = "#8956BA"
-snow       = "#F7F7F5"
-gold       = "#EAD82F"
-black      = "#060100"
-wisteria   = "#C599E2"
-rose       = "#E0637A"
-sage       = "#8FBF6C"
-teal       = "#6AAFB8"
-lilac_grey = "#2A1A38"
-bright_lilac = "#A474D4"
+snow         = "#F7F7F5"   # Bright Snow (primary text)
+black        = "#060100"   # Pure Black (canvas)
+bg1          = "#120E15"   # Near-black with purple undertone
+lilac_grey   = "#2A1A38"   # Lilac-grey (darker segment)
+lilac        = "#8956BA"   # Deep Lilac (languages segment)
+wisteria     = "#C599E2"   # Wisteria (user/os segment)
+gold         = "#EAD82F"   # Golden Glow (directory segment)
+teal         = "#6AAFB8"   # Teal (git segment)
+sage         = "#8FBF6C"   # Sage (success)
+rose         = "#E0637A"   # Rose (error)
+bright_lilac = "#A474D4"   # Bright Lilac (accent)
 
-# ── Window title (user@host: cwd) ────────────────────────────────────
-# Starship's built-in title feature — zsh will receive the OSC 0 sequence.
+# ── OS icon ──────────────────────────────────────────────────────────
+[os]
+disabled = false
+style = "bg:wisteria fg:black"
+
+[os.symbols]
+Macos = " "
+Linux = " "
+Windows = " "
+
+# ── Username ─────────────────────────────────────────────────────────
 [username]
 show_always = true
-format = "[$user]($style)"
-style_user = "bold wisteria"
-style_root = "bold rose"
+style_user = "bg:wisteria fg:black"
+style_root = "bg:wisteria fg:rose"
+format = '[ $user ]($style)'
 
-[hostname]
-ssh_only = false
-format = "[@$hostname]($style) "
-style = "bold lilac"
-trim_at = "."
-disabled = false
-
+# ── Directory ────────────────────────────────────────────────────────
 [directory]
-style = "bold gold"
+style = "fg:black bg:gold"
+format = "[ $path ]($style)"
 truncation_length = 4
-truncate_to_repo = false
-format = "[$path]($style)[$read_only]($read_only_style) "
+truncation_symbol = "…/"
 read_only = " 🔒"
-read_only_style = "rose"
+read_only_style = "fg:rose bg:gold"
 
-[character]
-success_symbol = "[❯](bold sage)"
-error_symbol   = "[❯](bold rose)"
-vimcmd_symbol  = "[❮](bold wisteria)"
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+"Developer" = "󰲋 "
 
+# ── Git ──────────────────────────────────────────────────────────────
 [git_branch]
-symbol = " "
-style = "bold wisteria"
-format = "on [$symbol$branch]($style) "
+symbol = ""
+style = "bg:teal"
+format = '[[ $symbol $branch ](fg:black bg:teal)]($style)'
 
 [git_status]
-style = "bold rose"
-format = "([$all_status$ahead_behind]($style) )"
-conflicted = "="
-ahead      = "⇡${count}"
-behind     = "⇣${count}"
-diverged   = "⇕⇡${ahead_count}⇣${behind_count}"
-up_to_date = ""
-untracked  = "?"
-stashed    = "$"
-modified   = "!"
-staged     = "+"
-renamed    = "»"
-deleted    = "✘"
+style = "bg:teal"
+format = '[[($all_status$ahead_behind )](fg:black bg:teal)]($style)'
+conflicted  = "="
+ahead       = "⇡${count}"
+behind      = "⇣${count}"
+diverged    = "⇕⇡${ahead_count}⇣${behind_count}"
+up_to_date  = ""
+untracked   = "?"
+stashed     = "$"
+modified    = "!"
+staged      = "+"
+renamed     = "»"
+deleted     = "✘"
 
-[cmd_duration]
-min_time = 2000
-format = "took [$duration]($style) "
-style = "bold gold"
-
+# ── Language runtimes ────────────────────────────────────────────────
 [nodejs]
-symbol = " "
-style = "bold sage"
-format = "via [$symbol($version )]($style)"
+symbol = ""
+style = "bg:lilac"
+format = '[[ $symbol ($version) ](fg:snow bg:lilac)]($style)'
 
 [python]
-symbol = " "
-style = "bold gold"
-format = 'via [${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+symbol = ""
+style = "bg:lilac"
+format = '[[ $symbol ($version)(\($virtualenv\)) ](fg:snow bg:lilac)]($style)'
 
 [rust]
-symbol = " "
-style = "bold rose"
-format = "via [$symbol($version )]($style)"
+symbol = ""
+style = "bg:lilac"
+format = '[[ $symbol ($version) ](fg:snow bg:lilac)]($style)'
 
 [ruby]
-symbol = " "
-style = "bold rose"
-format = "via [$symbol($version )]($style)"
+symbol = ""
+style = "bg:lilac"
+format = '[[ $symbol ($version) ](fg:snow bg:lilac)]($style)'
 
 [package]
-symbol = "📦 "
-style = "bold teal"
+symbol = "󰏗 "
+style = "bg:lilac"
+format = '[[ $symbol ($version) ](fg:snow bg:lilac)]($style)'
+
+# ── Container / env ──────────────────────────────────────────────────
+[docker_context]
+symbol = ""
+style = "bg:lilac_grey"
+format = '[[ $symbol ($context) ](fg:teal bg:lilac_grey)]($style)'
+
+[conda]
+style = "bg:lilac_grey"
+format = '[[ $symbol($environment) ](fg:sage bg:lilac_grey)]($style)'
+
+# ── Command duration ─────────────────────────────────────────────────
+[cmd_duration]
+min_time = 2000
+style = "bg:bg1"
+format = '[[ 󱎫 $duration ](fg:gold bg:bg1)]($style)'
+
+# ── Time ─────────────────────────────────────────────────────────────
+[time]
+disabled = false
+time_format = "%R"
+style = "bg:bg1"
+format = '[[  $time ](fg:snow bg:bg1)]($style)'
+
+# ── Prompt character ─────────────────────────────────────────────────
+[character]
+success_symbol = "[❯](bold fg:sage)"
+error_symbol   = "[❯](bold fg:rose)"
+vimcmd_symbol  = "[❮](bold fg:wisteria)"
