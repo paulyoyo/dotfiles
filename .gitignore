@@ -29,6 +29,17 @@
 !.config/zellij/layouts/
 !.config/zellij/layouts/default.kdl
 
+# Neovim / LazyVim config
+!.config/nvim/
+.config/nvim/*
+!.config/nvim/init.lua
+!.config/nvim/stylua.toml
+!.config/nvim/lazy-lock.json
+!.config/nvim/lua/
+!.config/nvim/lua/**
+!.config/nvim/colors/
+!.config/nvim/colors/**
+
 # NOT tracked:
 #   .config/zellij/plugins/*.wasm   (binary, self-updates from GitHub)
 #   .config/zellij/plugins/*.sh     (auto-generated hook script)
