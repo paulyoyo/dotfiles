@@ -71,6 +71,9 @@ brew install git zsh starship
 # CLI tools referenced by .zshrc
 brew install fzf eza bat fd direnv rbenv jq
 
+# Shell autocomplete stack
+brew install zsh-autosuggestions zsh-completions
+
 # Optional (zellaude clickable notifications)
 brew install terminal-notifier
 
@@ -78,9 +81,23 @@ brew install terminal-notifier
 brew install zellij
 brew install --cask kitty
 
+# Neovide (GUI editor for pwnvim)
+brew install --cask neovide-app
+
 # Nerd Font used by every terminal
 brew install --cask font-meslo-lg-nerd-font
 ```
+
+### fzf-tab (not in brew)
+
+fzf-tab is a git-only zsh plugin that replaces the native Tab completion menu with an fzf fuzzy picker. Clone it to the path `.zshrc` expects:
+
+```bash
+mkdir -p ~/.zsh/plugins
+git clone https://github.com/Aloxaf/fzf-tab ~/.zsh/plugins/fzf-tab
+```
+
+To update later: `cd ~/.zsh/plugins/fzf-tab && git pull`.
 
 ### Other
 

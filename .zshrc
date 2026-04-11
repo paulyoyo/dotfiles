@@ -87,6 +87,45 @@ _fzf_compgen_dir() {
 export FZF_DEFAULT_OPTS="--color=fg:#F7F7F5,bg:#060100,hl:#8956BA,fg+:#F7F7F5,bg+:#2A1A38,hl+:#C599E2,info:#6AAFB8,prompt:#EAD82F,pointer:#EAD82F,marker:#EAD82F,spinner:#C599E2,header:#C599E2"
 
 # ─────────────────────────────────────────────────────────────────────
+# Completion system
+# Load order is load-bearing:
+#   1. zsh-completions → added to $fpath BEFORE compinit
+#   2. compinit        → builds the completion database
+#   3. fzf-tab         → hooks into the completion system (must be AFTER compinit)
+#   4. zsh-autosuggestions → sources its own widget (order-independent, but
+#      convention is to source after completion is set up)
+# ─────────────────────────────────────────────────────────────────────
+
+# 1. zsh-completions — adds ~1000 extra completion scripts to fpath
+fpath=("$(brew --prefix)/share/zsh-completions" $fpath)
+
+# 2. Initialise zsh's native completion system
+autoload -Uz compinit
+compinit
+
+# 3. fzf-tab — replaces the default Tab completion menu with an fzf picker.
+#    MUST come after compinit.
+source "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
+
+# fzf-tab styling — Salvaje colors, wider preview pane, group headers
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' menu no                          # disable native menu (fzf-tab replaces it)
+zstyle ':fzf-tab:complete:*' fzf-preview \
+  'if [[ -d $realpath ]]; then eza -1 --color=always --icons=always "$realpath" 2>/dev/null; \
+   elif [[ -f $realpath ]]; then bat -n --color=always --line-range :300 "$realpath" 2>/dev/null; \
+   fi'
+zstyle ':fzf-tab:*' fzf-flags --height=50% --layout=reverse --border --preview-window=right:60%:wrap
+zstyle ':fzf-tab:*' switch-group '<' '>'                # alt groups with < / >
+zstyle ':fzf-tab:*' use-fzf-default-opts yes            # inherit FZF_DEFAULT_OPTS (Salvaje colors)
+
+# 4. zsh-autosuggestions — ghost text from history
+source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+# Style the ghost text with Salvaje lilac-grey so it's clearly dim
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#5C4E6A'
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+
+# ─────────────────────────────────────────────────────────────────────
 # Bat
 # ─────────────────────────────────────────────────────────────────────
 export BAT_THEME=tokyonight_night
