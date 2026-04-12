@@ -25,12 +25,7 @@
 !.config/starship-terminal.toml
 !.config/terminal-profiles/
 !.config/terminal-profiles/Salvaje.terminal
-!.config/zellij/
-!.config/zellij/config.kdl
-!.config/zellij/themes/
-!.config/zellij/themes/salvaje.kdl
-!.config/zellij/layouts/
-!.config/zellij/layouts/default.kdl
+# zellij — stock defaults, no custom config tracked
 
 # Neovim / LazyVim config
 !.config/nvim/
@@ -58,11 +53,6 @@
 !.local/bin/
 .local/bin/*
 !.local/bin/nvim-pwnvim
-
-# NOT tracked:
-#   .config/zellij/plugins/*.wasm   (binary, self-updates from GitHub)
-#   .config/zellij/plugins/*.sh     (auto-generated hook script)
-#   .config/zellij/plugins/*.json   (per-machine plugin state)
 
 # Never commit secrets
 .secrets
