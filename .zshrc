@@ -148,6 +148,13 @@ eval "$(rbenv init - zsh)"
 eval "$(direnv hook zsh)"
 
 # ─────────────────────────────────────────────────────────────────────
+# zoxide — smarter cd that learns your most-used directories
+# Usage: `z foo` jumps to the highest-ranked dir matching "foo"
+#        `zi foo` opens an fzf picker if there are multiple matches
+# ─────────────────────────────────────────────────────────────────────
+eval "$(zoxide init zsh)"
+
+# ─────────────────────────────────────────────────────────────────────
 # AMP Config
 # ─────────────────────────────────────────────────────────────────────
 export AMPCODE_LLM_PROVIDER=ollama
