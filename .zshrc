@@ -174,6 +174,51 @@ add-zsh-hook precmd _set_window_title
 eval "$(starship init zsh)"
 
 # ─────────────────────────────────────────────────────────────────────
+# Transient prompt — replaces p10k's POWERLEVEL9K_TRANSIENT_PROMPT
+# When you press Enter, the current full starship prompt collapses to a
+# minimal `❯ ` (in Sage green). Only the NEXT prompt stays full with all
+# segments. Keeps scrollback clean and readable.
+#
+# Technique: zle-line-init captures Enter via .recursive-edit, rewrites
+# the displayed prompt to the minimal version, then accepts the line.
+# Starship's precmd regenerates the full prompt for the next command.
+# This is the same mechanism powerlevel10k used internally.
+# ─────────────────────────────────────────────────────────────────────
+function zle-line-init() {
+  emulate -L zsh
+  [[ $CONTEXT == start ]] || return 0
+
+  # Enter the recursive edit loop — user types normally, loop returns
+  # when they press Enter (ret=0) or Ctrl-D (ret=0, KEYS=\4).
+  while true; do
+    zle .recursive-edit
+    local -i ret=$?
+    [[ $ret == 0 && $KEYS == $'\4' ]] || break
+    [[ -o ignore_eof ]] || exit 0
+  done
+
+  # Save current prompt, replace with minimal transient version
+  local saved_prompt=$PROMPT
+  local saved_rprompt=$RPROMPT
+  # Sage green ❯ matching starship's success_symbol color
+  PROMPT=$'%{\e[1;38;2;143;191;108m%}❯%{\e[0m%} '
+  RPROMPT=''
+  zle .reset-prompt
+
+  # Restore so starship's precmd regenerates the full prompt next time
+  PROMPT=$saved_prompt
+  RPROMPT=$saved_rprompt
+
+  if (( ret )); then
+    zle .send-break
+  else
+    zle .accept-line
+  fi
+  return ret
+}
+zle -N zle-line-init
+
+# ─────────────────────────────────────────────────────────────────────
 # Salvaje startup banner is now printed by ~/.config/kitty/salvaje-shell.sh
 # (configured as kitty's `shell` wrapper in kitty.conf). That way it fires
 # on every new kitty OS window or tab, before zsh or zellij touch the
