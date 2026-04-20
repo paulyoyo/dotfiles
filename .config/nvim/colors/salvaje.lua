@@ -33,7 +33,7 @@
     grey_1 = "#2A1A38", -- lilac_grey alias
     grey_2 = "#3D2B4F", -- medium grey
     grey_3 = "#5A4670", -- light grey
-    grey_4 = "#9A8EA6", -- inactive fg
+    grey_4 = "#BAA8C7", -- inactive fg (bumped from #9A8EA6 for sun-readability)
     soft_white = "#C8C2BA",
     none = "NONE",
   }
@@ -276,6 +276,24 @@
   hi("NeoTreeGitAdded",         { fg = p.sage })
   hi("NeoTreeGitModified",      { fg = p.gold })
   hi("NeoTreeGitDeleted",       { fg = p.rose })
+  hi("NeoTreeGitIgnored",       { fg = p.grey_4, italic = true })
+  hi("NeoTreeDimText",          { fg = p.grey_4 })
+  hi("NeoTreeDotfile",          { fg = p.grey_4 })
+  hi("NeoTreeHiddenByName",     { fg = p.grey_4, italic = true })
+
+  -- ── Snacks explorer (LazyVim default) ──────────────────────────
+  -- Snacks uses these groups for its file explorer. Dimmed entries
+  -- (gitignored, hidden) need a brighter grey_4 to stay readable.
+  hi("SnacksPickerDir",         { fg = p.wisteria })
+  hi("SnacksPickerFile",        { fg = p.snow })
+  hi("SnacksPickerDimmed",      { fg = p.grey_4 })
+  hi("SnacksPickerGitIgnored",  { fg = p.grey_4, italic = true })
+  hi("SnacksPickerIgnored",     { fg = p.grey_4, italic = true })
+  hi("SnacksPickerHidden",      { fg = p.grey_4, italic = true })
+  hi("SnacksPickerPathHidden",  { fg = p.grey_4, italic = true })
+  hi("SnacksPickerPathIgnored", { fg = p.grey_4, italic = true })
+  hi("SnacksExplorerFileIgnored", { fg = p.grey_4, italic = true })
+  hi("SnacksExplorerDimmed",    { fg = p.grey_4 })
 
   -- ── Which-key ──────────────────────────────────────────────────
   hi("WhichKey",          { fg = p.gold, bold = true })
