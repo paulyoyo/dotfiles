@@ -74,7 +74,10 @@
   hi("IncSearch",    { fg = p.black, bg = p.bright_gold })
   hi("CurSearch",    { fg = p.black, bg = p.bright_gold })
   hi("Substitute",   { fg = p.black, bg = p.rose })
-  hi("NonText",      { fg = p.grey_2 })
+  -- NonText is the fallback snacks uses for gitignored files in the
+  -- explorer. Keeping it at grey_2 (#3D2B4F) made those files invisible
+  -- in sunlight. Bumped to grey_4 (#BAA8C7) for readability.
+  hi("NonText",      { fg = p.grey_4 })
   hi("Whitespace",   { fg = p.grey_2 })
   hi("SpecialKey",   { fg = p.grey_3 })
   hi("Conceal",      { fg = p.grey_4 })
