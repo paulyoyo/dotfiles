@@ -26,8 +26,8 @@ export DEV_HOME="/Volumes/masterlama/dev/paul"
 # ─────────────────────────────────────────────────────────────────────
 export PATH="$EXTERNAL_MAC/bin:$HOME/.local/bin:$DEV_HOME/.local/bin:$PATH"
 
-# Android SDK (modern layout — `tools/` was removed in recent SDKs)
-export ANDROID_HOME="$HOME/Library/Android/sdk"
+# Android SDK — hardcoded path avoids spaces in $HOME breaking Java classpath
+export ANDROID_HOME="/Users/paulsutcliffe/android-sdk"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
 export PATH="$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator"
 
@@ -124,6 +124,18 @@ source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#5C4E6A'
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+
+# 5. Prefix-based history search on up/down arrows.
+# Type "zellij" then press ↑ to cycle through only history entries
+# starting with "zellij". Built-in zsh — no plugin needed.
+# The -end widgets jump the cursor to end-of-line after matching.
+autoload -Uz history-search-end
+zle -N history-beginning-search-backward-end history-search-end
+zle -N history-beginning-search-forward-end  history-search-end
+bindkey "^[[A" history-beginning-search-backward-end   # ↑
+bindkey "^[[B" history-beginning-search-forward-end    # ↓
+bindkey "^[OA" history-beginning-search-backward-end   # ↑ (alt termcap)
+bindkey "^[OB" history-beginning-search-forward-end    # ↓ (alt termcap)
 
 # ─────────────────────────────────────────────────────────────────────
 # Bat
@@ -231,3 +243,6 @@ zle -N zle-line-init
 # on every new kitty OS window or tab, before zsh or zellij touch the
 # screen — much more reliable than gating from .zshrc.
 # ─────────────────────────────────────────────────────────────────────
+
+# Flutter: Chrome on external drive
+export CHROME_EXECUTABLE="/Volumes/El Gato/External Mac/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
