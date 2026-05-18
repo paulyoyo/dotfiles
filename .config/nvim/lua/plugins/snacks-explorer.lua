@@ -15,11 +15,14 @@ return {
         sources = {
           explorer = {
             hidden = true,   -- show dotfiles by default
-            ignored = false, -- still hide gitignored by default
+            ignored = false, -- hide gitignored by default
+            -- Force-show common dev files even when gitignored:
+            include = { ".env", ".env.*", ".env.local" },
           },
           files = {
             hidden = true,
             ignored = false,
+            include = { ".env", ".env.*", ".env.local" },
           },
         },
       },
