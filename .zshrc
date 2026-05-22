@@ -67,9 +67,9 @@ export TMUX_TMPDIR="$HOME/.tmux/tmp"
 [[ ! -d "$TMUX_TMPDIR" ]] && mkdir -p "$TMUX_TMPDIR"
 
 # ─────────────────────────────────────────────────────────────────────
-# FZF
+# FZF (only if installed)
 # ─────────────────────────────────────────────────────────────────────
-eval "$(fzf --zsh)"
+command -v fzf >/dev/null 2>&1 && eval "$(fzf --zsh)"
 
 export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
@@ -104,8 +104,9 @@ autoload -Uz compinit
 compinit
 
 # 3. fzf-tab — replaces the default Tab completion menu with an fzf picker.
-#    MUST come after compinit.
-source "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
+#    MUST come after compinit. Guard if not cloned.
+[ -f "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh" ] && \
+  source "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
 
 # fzf-tab styling — Salvaje colors, wider preview pane, group headers
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
@@ -118,12 +119,14 @@ zstyle ':fzf-tab:*' fzf-flags --height=50% --layout=reverse --border --preview-w
 zstyle ':fzf-tab:*' switch-group '<' '>'                # alt groups with < / >
 zstyle ':fzf-tab:*' use-fzf-default-opts yes            # inherit FZF_DEFAULT_OPTS (Salvaje colors)
 
-# 4. zsh-autosuggestions — ghost text from history
-source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-# Style the ghost text with Salvaje lilac-grey so it's clearly dim
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#5C4E6A'
-ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+# 4. zsh-autosuggestions — ghost text from history (guard if not installed)
+if [ -f "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+  source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  # Style the ghost text with Salvaje lilac-grey so it's clearly dim
+  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#5C4E6A'
+  ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+  ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+fi
 
 # 5. Prefix-based history search on up/down arrows.
 # Type "zellij" then press ↑ to cycle through only history entries
@@ -149,22 +152,24 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
 # ─────────────────────────────────────────────────────────────────────
-# rbenv
+# rbenv (only if installed; /opt/rbenv is the main machine's custom root)
 # ─────────────────────────────────────────────────────────────────────
-export RBENV_ROOT="/opt/rbenv"
-eval "$(rbenv init - zsh)"
+if command -v rbenv >/dev/null 2>&1; then
+  [ -d /opt/rbenv ] && export RBENV_ROOT="/opt/rbenv"
+  eval "$(rbenv init - zsh)"
+fi
 
 # ─────────────────────────────────────────────────────────────────────
-# direnv
+# direnv (only if installed)
 # ─────────────────────────────────────────────────────────────────────
-eval "$(direnv hook zsh)"
+command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 
 # ─────────────────────────────────────────────────────────────────────
 # zoxide — smarter cd that learns your most-used directories
 # Usage: `z foo` jumps to the highest-ranked dir matching "foo"
 #        `zi foo` opens an fzf picker if there are multiple matches
 # ─────────────────────────────────────────────────────────────────────
-eval "$(zoxide init zsh)"
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 
 # ─────────────────────────────────────────────────────────────────────
 # AMP Config
