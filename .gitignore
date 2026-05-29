@@ -21,6 +21,8 @@
 !.config/kitty/salvaje-banner.sh
 !.config/kitty/salvaje-banner.txt
 !.config/kitty/salvaje-shell.sh
+# salvaje-quotes.txt is user-local — ship only the template
+!.config/kitty/salvaje-quotes.example.txt
 !.config/starship.toml
 !.config/starship-terminal.toml
 !.config/terminal-profiles/

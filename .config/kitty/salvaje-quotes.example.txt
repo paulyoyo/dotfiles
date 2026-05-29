@@ -1,0 +1,12 @@
+# ~/.config/kitty/salvaje-quotes.txt
+#
+# One quote per line. Lines starting with # and blank lines are ignored.
+# salvaje-banner.sh picks one line at random on each kitty open.
+#
+# Add lines yourself from your own copy of any book/source you like.
+# Keep each line under 100 characters (longer gets truncated with "...").
+#
+# Example formats:
+#   The harder you work, the luckier you get.
+#   Small daily disciplines compound.
+#   Discipline beats motivation.

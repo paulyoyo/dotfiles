@@ -55,15 +55,34 @@ while IFS= read -r line; do
 done < "$BANNER_FILE"
 
 echo
-# Tagline + subline padded to 100 content chars (matches braille row width)
+# Random quote from ~/.config/kitty/salvaje-quotes.txt — one line per quote,
+# # for comments, blank lines ignored. Centered to 100 chars. Falls back to
+# a hint message if file is missing or empty.
+QUOTES_FILE="${BASH_SOURCE%/*}/salvaje-quotes.txt"
+QUOTE=""
+if [ -s "$QUOTES_FILE" ]; then
+  QUOTE=$(grep -v '^[[:space:]]*#' "$QUOTES_FILE" | grep -v '^[[:space:]]*$' | \
+    awk 'BEGIN{srand()} {a[NR]=$0} END{if(NR>0) print a[int(rand()*NR)+1]}')
+fi
+[ -z "$QUOTE" ] && QUOTE="(populate ~/.config/kitty/salvaje-quotes.txt with one quote per line)"
+
+# Truncate to 100 chars max; count characters (not bytes) for UTF-8 safety
+Q_LEN=$(printf '%s' "$QUOTE" | wc -m | tr -d ' ')
+if [ "$Q_LEN" -gt 100 ]; then
+  QUOTE=$(printf '%s' "$QUOTE" | cut -c1-97)...
+  Q_LEN=100
+fi
+PAD_L=$(( (100 - Q_LEN) / 2 ))
+PAD_R=$(( 100 - Q_LEN - PAD_L ))
+
 printf ' '
 rgb "$C_GREY"
-printf '                    ~ salvaje · warm dark · purple nodes · golden connections ~                     '
+printf '%*s%s%*s' "$PAD_L" "" "$QUOTE" "$PAD_R" ""
 rst
 echo
 printf ' '
 rgb "$C_LILAC_GREY"
-printf '                                        salvaje · v1 · 2026                                         '
+printf '                              — Jeff Olson, The Slight Edge                                         '
 rst
 echo
 echo
