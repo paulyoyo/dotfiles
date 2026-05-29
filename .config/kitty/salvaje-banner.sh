@@ -30,14 +30,13 @@ C_ROSE='224;99;122'
 C_GREY='154;142;166'
 C_LILAC_GREY='92;78;106'
 
-# 5-band gradient across 6 rows of the bull/Salvaje logo
+# 5-band gradient across 10 rows of the bull/Salvaje logo (2 rows per band)
 ROW_COLORS=(
-  "$C_WISTERIA"
-  "$C_BRIGHT_LILAC"
-  "$C_LILAC"
-  "$C_GOLD"
-  "$C_ROSE"
-  "$C_ROSE"
+  "$C_WISTERIA"     "$C_WISTERIA"
+  "$C_BRIGHT_LILAC" "$C_BRIGHT_LILAC"
+  "$C_LILAC"        "$C_LILAC"
+  "$C_GOLD"         "$C_GOLD"
+  "$C_ROSE"         "$C_ROSE"
 )
 
 # ─────────────────────────────────────────────────────────────────────
