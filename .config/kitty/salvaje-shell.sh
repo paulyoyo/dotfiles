@@ -16,7 +16,7 @@
 # shells (zellij's own panes) don't recurse. attach -c = attach default
 # session, create if missing → one persistent session across kitty opens.
 if [ -z "$ZELLIJ" ] && [ -x /opt/homebrew/bin/zellij ]; then
-  exec /opt/homebrew/bin/zellij attach -c
+  exec /opt/homebrew/bin/zellij
 fi
 
 exec /bin/zsh -il
