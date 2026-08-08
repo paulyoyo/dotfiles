@@ -24,7 +24,10 @@ return {
       "ClaudeCodeDiffDeny",
     },
     opts = {
-      terminal_cmd = "/Volumes/El Gato/External Mac/.nvm/versions/node/v20.19.4/bin/claude",
+      -- snacks.terminal shell-splits cmd on spaces, so nvm's real path
+      -- (/Volumes/El Gato/…) breaks. Use no-space symlink at
+      -- /opt/homebrew/bin/claude-cli → real binary.
+      terminal_cmd = "/opt/homebrew/bin/claude-cli",
       terminal = {
         provider = "snacks",
         split_side = "right",
