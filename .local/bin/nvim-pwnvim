@@ -27,5 +27,5 @@ export NVIM_APPNAME=pwnvim
 # ONCE at the end. Spaces in font family names escaped with backslash.
 exec /opt/homebrew/bin/nvim \
   --cmd 'set background=light' \
-  -c 'set guifont=GT\ Pressura\ LCGV\ Mono,MesloLGS\ Nerd\ Font\ Mono:h18' \
+  -c 'set guifont=MesloLGS\ Nerd\ Font\ Mono:h18' \
   "$@"
