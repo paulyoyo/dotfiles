@@ -97,7 +97,12 @@ return {
       require("nvim-tree").setup(opts)
       local api = require("nvim-tree.api")
       vim.api.nvim_create_autocmd("VimEnter", {
-        callback = function() api.tree.open({ focus = false }) end,
+        -- open() ignores focus=false, so hand focus back to the file window.
+        callback = function(data)
+          local win = vim.api.nvim_get_current_win()
+          api.tree.open()
+          if vim.fn.filereadable(data.file) == 1 then vim.api.nvim_set_current_win(win) end
+        end,
       })
       -- Quit nvim when the tree is the only window left.
       vim.api.nvim_create_autocmd("QuitPre", {
