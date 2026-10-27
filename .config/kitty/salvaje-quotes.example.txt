@@ -1,12 +1,19 @@
-# ~/.config/kitty/salvaje-quotes.txt
+# ~/.config/kitty/salvaje-quotes.example.txt
 #
-# One quote per line. Lines starting with # and blank lines are ignored.
-# salvaje-banner.sh picks one line at random on each kitty open.
+# Template for ~/.config/kitty/salvaje-quotes.txt (user-local, not
+# tracked in the dotfiles repo). The banner picks one line at random on
+# every fresh kitty window.
 #
-# Add lines yourself from your own copy of any book/source you like.
-# Keep each line under 100 characters (longer gets truncated with "...").
+# Format: one quote per line. `#` starts a comment; blank lines are
+# skipped. Everything after a `|` is printed as a dim attribution on the
+# line below, right-aligned. The attribution is optional.
 #
-# Example formats:
-#   The harder you work, the luckier you get.
-#   Small daily disciplines compound.
-#   Discipline beats motivation.
+#   quote text                          -> quote alone, no attribution
+#   quote text | Author, Source          -> quote plus attribution
+#
+# Keep quotes under ~100 characters; longer ones are truncated with an
+# ellipsis to fit the window.
+
+The journey starts with a single step, not with thinking about taking a step. | Jeff Olson, The Slight Edge
+What you do today matters. What you do every day matters. | Jeff Olson, The Slight Edge
+The only person you are destined to become is the person you decide to be. | Ralph Waldo Emerson
