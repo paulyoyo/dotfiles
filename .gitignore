@@ -59,6 +59,11 @@
 !.local/bin/
 .local/bin/*
 !.local/bin/nvim-pwnvim
+# SwiftBar plugins (Gemini/Antigravity quota menu)
+!.local/share/
+.local/share/*
+!.local/share/swiftbar/
+!.local/share/swiftbar/*.py
 
 # Never commit secrets
 .secrets
