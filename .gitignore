@@ -27,9 +27,13 @@
 !.config/starship-terminal.toml
 !.config/terminal-profiles/
 !.config/terminal-profiles/Salvaje.terminal
+
+# claude-agy kit (Claude Code + Antigravity/Gemini reviewer)
+!.config/claude-agy/
+!.config/claude-agy/**
 # zellij — stock defaults, no custom config tracked
 
-# Neovim / LazyVim config
+# Neovim config (minimal, no distro)
 !.config/nvim/
 .config/nvim/*
 !.config/nvim/init.lua

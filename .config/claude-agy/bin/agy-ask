@@ -1,0 +1,287 @@
+#!/usr/bin/env bash
+# agy-ask: run Antigravity CLI (agy) as a READ-ONLY second opinion
+# and save its answer to a markdown file that Claude Code can read.
+#
+# Compatible with macOS bash 3.2 and Linux bash 5.
+set -euo pipefail
+
+PROG="agy-ask"
+VERSION="0.2.0"
+
+usage() {
+  cat <<'EOF'
+Usage: agy-ask [options] -f PROMPT_FILE
+       agy-ask [options] "prompt text"
+
+Runs agy in headless print mode, read-only, against the current git repo,
+writes the answer to a markdown file and prints that file's path.
+
+Options:
+  -o FILE   Output file (default: .agy/ask-YYYYmmdd-HHMMSS.md)
+  -f FILE   Read the prompt from FILE
+  -d DIR    Extra directory agy may read (repeatable)
+  -m MODEL  Model id for agy --model (default: $AGY_ASK_MODEL or agy's default)
+  -t DUR    Print timeout, e.g. 10m (default: $AGY_ASK_TIMEOUT or 10m)
+  -v        Print version
+  -h        Show this help
+
+Environment:
+  AGY_BIN        agy binary to call (default: agy)
+  AGY_ASK_RETRIES  Retries on retryable agy errors (default 2)
+  AGY_ASK_RESUMES  Resumes after a denied command/timeout left no answer (default 3)
+  AGY_ASK_RESUME_TIMEOUT  Print timeout per resume (default 5m)
+  AGY_ASK_FALLBACK_MODEL  Model to rerun on when quota is exhausted
+                 (default gemini-3.8-flash-high; set empty to disable)
+  AGY_ASK_EFFORT  agy --effort level (low|medium|high|xhigh|max)
+  AGY_ASK_PTY=1  Run agy under a pseudo-TTY. Workaround for agy builds
+                 that drop stdout when it is piped.
+
+Exit codes:
+  0  answer written
+  1  usage or runtime error
+  2  agy returned no answer
+  3  the repo changed while agy was running (read-only guard tripped)
+EOF
+}
+
+die() { local code=$1; shift; printf '%s: %s\n' "$PROG" "$*" >&2; exit "$code"; }
+
+out="" prompt_file="" model="${AGY_ASK_MODEL:-}" timeout="${AGY_ASK_TIMEOUT:-10m}"
+extra_dirs=()
+
+while getopts ":o:f:d:m:t:vh" opt; do
+  case $opt in
+    o) out=$OPTARG ;;
+    f) prompt_file=$OPTARG ;;
+    d) extra_dirs+=("$OPTARG") ;;
+    m) model=$OPTARG ;;
+    t) timeout=$OPTARG ;;
+    v) echo "$PROG $VERSION"; exit 0 ;;
+    h) usage; exit 0 ;;
+    :) die 1 "option -$OPTARG needs a value" ;;
+    \?) die 1 "unknown option -$OPTARG (see -h)" ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+AGY_BIN="${AGY_BIN:-agy}"
+command -v "$AGY_BIN" >/dev/null 2>&1 || die 1 "'$AGY_BIN' not found. Install Antigravity CLI: curl -fsSL https://antigravity.google/cli/install.sh | bash"
+
+# ---- prompt --------------------------------------------------------------
+if [ -n "$prompt_file" ]; then
+  [ -r "$prompt_file" ] || die 1 "cannot read prompt file: $prompt_file"
+  user_prompt=$(cat "$prompt_file")
+elif [ $# -gt 0 ]; then
+  user_prompt="$*"
+else
+  usage >&2; exit 1
+fi
+[ -n "${user_prompt//[[:space:]]/}" ] || die 1 "prompt is empty"
+
+# ---- workspace -----------------------------------------------------------
+in_git=0
+if root=$(git rev-parse --show-toplevel 2>/dev/null); then
+  in_git=1
+else
+  root=$(pwd)
+fi
+scratch="$root/.agy"
+mkdir -p "$scratch"
+
+# Keep .agy/ out of git without touching the project's .gitignore.
+if [ $in_git -eq 1 ]; then
+  exclude=$(git -C "$root" rev-parse --git-path info/exclude)
+  case $exclude in /*) ;; *) exclude="$root/$exclude" ;; esac
+  mkdir -p "$(dirname "$exclude")"
+  grep -qxF '.agy/' "$exclude" 2>/dev/null || printf '.agy/\n' >> "$exclude"
+fi
+
+[ -n "$out" ] || out="$scratch/ask-$(date +%Y%m%d-%H%M%S).md"
+case $out in /*) ;; *) out="$(pwd)/$out" ;; esac
+mkdir -p "$(dirname "$out")"
+
+for d in ${extra_dirs[@]+"${extra_dirs[@]}"}; do
+  [ -d "$d" ] || die 1 "not a directory: $d"
+done
+
+# ---- read-only guard -----------------------------------------------------
+repo_state() {
+  [ $in_git -eq 1 ] || { echo "no-git"; return; }
+  {
+    git -C "$root" diff HEAD --binary --no-ext-diff 2>/dev/null || true
+    git -C "$root" ls-files -o --exclude-standard -z \
+      | xargs -0 -r git -C "$root" hash-object -- 2>/dev/null || true
+    git -C "$root" ls-files -o --exclude-standard
+  } | git hash-object --stdin
+}
+
+preamble='You are acting as an independent, READ-ONLY reviewer.
+Hard rules:
+- Do NOT create, edit, move or delete any file. Do NOT run commands that change state.
+- Prefer your file-reading tools over shell commands. Only these commands are allowed: ls, cat, head, tail, grep, rg, wc, find, diff, sort, uniq, stat, file, tree, pwd, git log/show/diff/status/grep/ls-files/blame/rev-parse/merge-base/branch. Anything else (tests, builds, linters, bin/rails, rake, npm, make, sed, awk, pipes into other tools) is denied, and ONE denied command discards your ENTIRE answer. The caller runs the checks.
+- Any diff or patch file you are given is already correct. Do not re-derive or verify it against git.
+- Base every claim on something you actually read. Cite evidence as path:line.
+- Never invent command output, file contents, versions or APIs. If you could not verify something, say "unverified" explicitly.
+- Be concise. No preamble, no praise. If there is nothing important to report, say so in one line.
+
+Task:
+'
+full_prompt="$preamble$user_prompt"
+
+base=("$AGY_BIN" --output-format json --print-timeout "$timeout" --add-dir "$root")
+for d in ${extra_dirs[@]+"${extra_dirs[@]}"}; do base+=(--add-dir "$d"); done
+[ -z "$model" ] || base+=(--model "$model")
+[ -z "${AGY_ASK_EFFORT:-}" ] || base+=(--effort "$AGY_ASK_EFFORT")
+cmd=("${base[@]}" -p "$full_prompt")   # -p must be last: some agy builds ignore flags after it
+
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/agy-ask.XXXXXX")
+trap 'rm -rf "$tmp"' EXIT
+
+before=$(repo_state)
+started=$(date +%s)
+
+run_agy() {
+  set +e
+  if [ "${AGY_ASK_PTY:-0}" = "1" ]; then
+    if [ "$(uname -s)" = "Darwin" ]; then
+      (cd "$root" && script -q /dev/null "${cmd[@]}" </dev/null) >"$tmp/raw" 2>"$tmp/err"
+    else
+      quoted=$(printf '%q ' "${cmd[@]}")
+      (cd "$root" && script -qec "$quoted" /dev/null </dev/null) >"$tmp/raw" 2>"$tmp/err"
+    fi
+    rc=$?
+    tr -d '\r' <"$tmp/raw" >"$tmp/raw.clean" && mv "$tmp/raw.clean" "$tmp/raw"
+  else
+    (cd "$root" && "${cmd[@]}" </dev/null) >"$tmp/raw" 2>"$tmp/err"
+    rc=$?
+  fi
+  set -e
+}
+
+# agy marks transient backend/network failures (e.g. "read: operation timed out")
+# as "retryable":true. Retry those; anything else fails fast.
+quota_out() { grep -q 'RESOURCE_EXHAUSTED' "$tmp/raw" "$tmp/err" 2>/dev/null; }
+retries="${AGY_ASK_RETRIES:-2}"
+attempt=0
+while :; do
+  run_agy
+  grep -q '"retryable":true' "$tmp/raw" "$tmp/err" 2>/dev/null || break
+  quota_out && break  # agy flags 429 as retryable, but it lasts days
+  [ "$attempt" -lt "$retries" ] || break
+  attempt=$((attempt + 1))
+  printf '%s: agy hit a retryable error, retry %s/%s in %ss...\n' "$PROG" "$attempt" "$retries" $((attempt * 15)) >&2
+  sleep $((attempt * 15))
+done
+
+# A 429 "Individual quota reached" is per model group and lasts days: retrying
+# or resuming only burns calls. Rerun once on Flash, which has its own bucket.
+fallback="${AGY_ASK_FALLBACK_MODEL-gemini-3.8-flash-high}"
+if quota_out && [ -n "$fallback" ] && [ "$model" != "$fallback" ]; then
+  printf '%s: quota exhausted on %s, falling back to %s\n' "$PROG" "${model:-default}" "$fallback" >&2
+  model=$fallback
+  nb=() i=0
+  while [ $i -lt ${#base[@]} ]; do  # drop any existing --model pair
+    if [ "${base[$i]}" = "--model" ]; then i=$((i + 2)); continue; fi
+    nb+=("${base[$i]}"); i=$((i + 1))
+  done
+  base=("${nb[@]}" --model "$model")
+  cmd=("${base[@]}" -p "$full_prompt")
+  run_agy
+fi
+
+# An empty answer after a denied command or a print timeout is NOT final: the
+# conversation survives. Resume it and force a written answer from what agy
+# already read. (A denied command otherwise discards the whole turn.)
+json_field() {  # prints a top-level field of agy's JSON; denied_actions -> count
+  python3 - "$tmp/raw" "$1" <<'PY'
+import json, sys
+t = open(sys.argv[1], encoding="utf-8", errors="replace").read()
+a, b = t.find("{"), t.rfind("}")
+try:
+    d = json.loads(t[a:b + 1])
+except ValueError:
+    sys.exit(0)
+v = d.get(sys.argv[2])
+print(len(v or []) if sys.argv[2] == "denied_actions" else (v or ""))
+PY
+}
+resumes="${AGY_ASK_RESUMES:-3}"
+resume_timeout="${AGY_ASK_RESUME_TIMEOUT:-5m}"
+n=0
+while [ "$n" -lt "$resumes" ]; do
+  resp=$(json_field response)
+  [ -z "${resp//[[:space:]]/}" ] || break
+  quota_out && break  # resuming a 429 just costs more calls
+  cid=$(json_field conversation_id)
+  [ -n "$cid" ] || break
+  n=$((n + 1))
+  if [ "$(json_field denied_actions)" != "0" ]; then
+    why="denied command"
+    nudge="A command you tried was denied, which discarded your answer. Do not run any more commands. Using only what you already read plus your file-reading tools (not shell), write the final answer to the original task NOW. Mark anything unverified."
+  else
+    why="timeout/empty"
+    nudge="Time is nearly up. Stop exploring. Write your final answer to the original task NOW from what you have already read. Mark anything unverified."
+  fi
+  printf '%s: empty answer (%s), resuming conversation %s/%s...\n' "$PROG" "$why" "$n" "$resumes" >&2
+  cmd=("${base[@]}" --conversation "$cid" -p "$nudge")
+  for i in "${!cmd[@]}"; do
+    [ "${cmd[$i]}" = "--print-timeout" ] && cmd[$((i + 1))]="$resume_timeout"
+  done
+  run_agy
+done
+
+elapsed=$(( $(date +%s) - started ))
+after=$(repo_state)
+
+# ---- extract the answer ------------------------------------------------------
+extract() {
+  if command -v python3 >/dev/null 2>&1; then
+    python3 - "$tmp/raw" <<'PY'
+import json, sys
+text = open(sys.argv[1], encoding="utf-8", errors="replace").read()
+start, end = text.find("{"), text.rfind("}")
+try:
+    data = json.loads(text[start:end + 1]) if start != -1 and end > start else None
+except ValueError:
+    data = None
+if isinstance(data, dict) and "response" in data:
+    sys.stdout.write(str(data.get("response") or ""))
+else:
+    sys.stdout.write(text)
+PY
+  elif command -v jq >/dev/null 2>&1 && jq -e 'has("response")' "$tmp/raw" >/dev/null 2>&1; then
+    jq -r '.response // ""' "$tmp/raw"
+  else
+    cat "$tmp/raw"
+  fi
+}
+answer=$(extract)
+
+if [ -z "${answer//[[:space:]]/}" ]; then
+  cp "$tmp/raw" "$scratch/last-raw.txt" 2>/dev/null || true
+  cp "$tmp/err" "$scratch/last-stderr.txt" 2>/dev/null || true
+  msg="agy returned no answer (exit $rc, ${elapsed}s). stderr saved to .agy/last-stderr.txt."
+  if grep -q '"denied_actions"' "$tmp/raw"; then
+    msg="$msg agy tried a tool/command that print mode denies (see .agy/last-raw.txt). Allow it in ~/.gemini/antigravity-cli/settings.json permissions.allow, or tighten the prompt."
+  elif [ "${AGY_ASK_PTY:-0}" != "1" ] && [ $rc -eq 0 ]; then
+    msg="$msg Your agy build may drop stdout when piped: retry with AGY_ASK_PTY=1."
+  fi
+  die 2 "$msg"
+fi
+
+{
+  printf '<!-- agy-ask %s | %s | model=%s | %ss -->\n\n' \
+    "$VERSION" "$(date '+%Y-%m-%d %H:%M')" "${model:-default}" "$elapsed"
+  printf '%s\n' "$answer"
+} >"$out"
+
+if [ "$before" != "$after" ]; then
+  {
+    printf '\n\n> WARNING: the repository changed while agy was running.\n'
+    printf '> The read-only guard tripped. Review `git status` before trusting anything.\n'
+  } >>"$out"
+  printf '%s: WARNING repo changed during the run. Check git status. Answer: %s\n' "$PROG" "$out" >&2
+  exit 3
+fi
+
+printf '%s\n' "$out"

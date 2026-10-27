@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# agy-claudemd: add or refresh the claude-agy section in ./CLAUDE.md.
+# Replaces an existing "## Working with Gemini (agy)" section (up to the next "## " heading)
+# with the current snippet from the kit, or appends it. Safe to run repeatedly.
+set -euo pipefail
+
+src=${BASH_SOURCE[0]}
+while [ -L "$src" ]; do
+  dir=$(cd -P "$(dirname "$src")" && pwd)
+  src=$(readlink "$src")
+  case $src in /*) ;; *) src="$dir/$src" ;; esac
+done
+snip="$(cd -P "$(dirname "$src")/.." && pwd)/CLAUDE.md.snippet"
+[ -r "$snip" ] || { echo "agy-claudemd: snippet not found at $snip" >&2; exit 1; }
+
+f="${1:-CLAUDE.md}"
+touch "$f"
+awk '/^## Working with Gemini \(agy\)/{skip=1; next}
+     skip && /^## /{skip=0}
+     skip {next}
+     /^[[:space:]]*$/ {blank++; next}
+     {while (blank>0) {print ""; blank--} print}' "$f" > "$f.tmp"
+[ -s "$f.tmp" ] && printf '\n' >> "$f.tmp"
+cat "$snip" >> "$f.tmp"
+mv "$f.tmp" "$f"
+echo "$f updated with the claude-agy section"

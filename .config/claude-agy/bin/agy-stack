@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# agy-stack: detect the project's stack, pick the matching rubric and copy it to .agy/rubric.md.
+# Compatible with macOS bash 3.2 and Linux bash 5.
+#
+# Output (stdout, key=value):
+#   stack=<name>
+#   rubric=<source path>
+#   copied=<repo>/.agy/rubric.md
+#
+# Exit codes: 0 ok, 1 error, 4 ambiguous (several stacks detected), 5 unknown stack.
+set -euo pipefail
+
+PROG="agy-stack"
+
+usage() {
+  cat <<'EOF'
+Usage: agy-stack [-s STACK] [-l]
+
+Resolution order:
+  1. -s STACK or $AGY_STACK
+  2. .claude/agy-rubric.md in the repo (custom rubric, stack=custom)
+  3. auto-detection: rails, python, astro, openframeworks, juce
+
+Options:
+  -s STACK  Force a stack (name of a file in the kit's rubrics/ folder)
+  -l        List available rubrics
+  -h        Help
+EOF
+}
+
+die() { local code=$1; shift; printf '%s: %s\n' "$PROG" "$*" >&2; exit "$code"; }
+
+# Resolve the kit folder through symlinks (no readlink -f on older macOS).
+src=${BASH_SOURCE[0]}
+while [ -L "$src" ]; do
+  dir=$(cd -P "$(dirname "$src")" && pwd)
+  src=$(readlink "$src")
+  case $src in /*) ;; *) src="$dir/$src" ;; esac
+done
+KIT=$(cd -P "$(dirname "$src")/.." && pwd)
+RUBRICS="$KIT/rubrics"
+
+forced="${AGY_STACK:-}"
+while getopts ":s:lh" opt; do
+  case $opt in
+    s) forced=$OPTARG ;;
+    l) for f in "$RUBRICS"/*.md; do basename "$f" .md; done; exit 0 ;;
+    h) usage; exit 0 ;;
+    :) die 1 "option -$OPTARG needs a value" ;;
+    \?) die 1 "unknown option -$OPTARG" ;;
+  esac
+done
+
+root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+mkdir -p "$root/.agy"
+
+has() { [ -e "$root/$1" ]; }
+has_glob() {  # has_glob DIR PATTERN MAXDEPTH
+  [ -d "$root/$1" ] || return 1
+  [ -n "$(find "$root/$1" -maxdepth "$3" -name "$2" -not -path '*/node_modules/*' -not -path '*/.git/*' -print -quit 2>/dev/null)" ]
+}
+grep_file() { [ -f "$root/$1" ] && grep -qiE "$2" "$root/$1"; }
+
+emit() {  # emit STACK RUBRIC_PATH
+  cp "$2" "$root/.agy/rubric.md"
+  printf 'stack=%s\nrubric=%s\ncopied=%s\n' "$1" "$2" "$root/.agy/rubric.md"
+  exit 0
+}
+
+if [ -n "$forced" ]; then
+  [ -f "$RUBRICS/$forced.md" ] || die 1 "no rubric '$forced'. Available: $(cd "$RUBRICS" && ls ./*.md | sed 's#^\./##; s/\.md$//' | tr '\n' ' ')"
+  emit "$forced" "$RUBRICS/$forced.md"
+fi
+
+if [ -f "$root/.claude/agy-rubric.md" ]; then
+  emit custom "$root/.claude/agy-rubric.md"
+fi
+
+found=""
+add() { found="$found $1"; }
+
+if has Gemfile && has config/application.rb; then add rails; fi
+if has astro.config.mjs || has astro.config.js || has astro.config.ts || has astro.config.cjs; then add astro; fi
+if has addons.make || has src/ofApp.cpp || grep_file config.make 'OF_ROOT'; then add openframeworks; fi
+if has_glob . '*.jucer' 1 || grep_file CMakeLists.txt 'juce_add_(gui_app|plugin|console_app)|add_subdirectory\(.*JUCE'; then add juce; fi
+if has pyproject.toml || has requirements.txt || has setup.py || has Pipfile; then add python; fi
+
+set -- $found
+case $# in
+  0) die 5 "could not detect the stack in $root. Use -s STACK or create .claude/agy-rubric.md" ;;
+  1) emit "$1" "$RUBRICS/$1.md" ;;
+  *) printf 'stack=ambiguous\ncandidates=%s\n' "$*"; exit 4 ;;
+esac
