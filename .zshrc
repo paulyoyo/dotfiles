@@ -32,7 +32,8 @@ export ANDROID_SDK_ROOT="$ANDROID_HOME"
 export PATH="$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator"
 
 # Node specific
-export PATH="/Volumes/El Gato/External Mac/.nvm/versions/node/v20.19.4/bin:$PATH"
+# Hardcoded v20 overrode `nvm alias default`; nvm (loaded below) now picks the version.
+# export PATH="/Volumes/El Gato/External Mac/.nvm/versions/node/v20.19.4/bin:$PATH"
 
 # ─────────────────────────────────────────────────────────────────────
 # Aliases
@@ -251,3 +252,33 @@ zle -N zle-line-init
 
 # Flutter: Chrome on external drive
 export CHROME_EXECUTABLE="/Volumes/El Gato/External Mac/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+
+
+
+# ScrapeGraphAI (hosted API key powers the scrapegraph-py SDK)
+alias scrapegraphai="$HOME/.venvs/scrapegraphai/bin/python"
+
+# Scrapling (venv on homebrew py3.14; browsers via `scrapling install`)
+alias scrapling="$HOME/.venvs/scrapling/bin/scrapling"
+alias scrapling-py="$HOME/.venvs/scrapling/bin/python"
+
+
+# Added by Antigravity CLI installer
+export PATH="/Volumes/El Gato/External Mac/.local/bin:$PATH"
+
+agy-claudemd() {
+  local snip="$HOME/.config/claude-agy/CLAUDE.md.snippet" f="CLAUDE.md"
+  touch "$f"
+  awk '/^## Working with Gemini \(agy\)/{skip=1; next}
+       skip && /^## /{skip=0}
+       skip {next}
+       /^[[:space:]]*$/ {blank++; next}
+       {while (blank>0) {print ""; blank--} print}' "$f" > "$f.tmp"
+  [ -s "$f.tmp" ] && printf '\n' >> "$f.tmp"
+  cat "$snip" >> "$f.tmp" && mv "$f.tmp" "$f"
+  echo "CLAUDE.md actualizado con el snippet de claude-agy"
+}
+
+
+export EDITOR=nvim
+export VISUAL=nvim

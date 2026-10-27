@@ -9,22 +9,20 @@ $directory\
 [](fg:color_yellow bg:color_aqua)\
 $git_branch\
 $git_status\
+$git_state\
 [](fg:color_aqua bg:color_blue)\
 $c\
 $cpp\
-$rust\
-$golang\
+$ruby\
 $nodejs\
-$php\
-$java\
-$kotlin\
-$haskell\
 $python\
 [](fg:color_blue bg:color_bg3)\
+$direnv\
 $docker_context\
-$conda\
-$pixi\
 [](fg:color_bg3 bg:color_bg1)\
+$jobs\
+$cmd_duration\
+$status\
 $time\
 [ ](fg:color_bg1)\
 $line_break$character"""
@@ -113,6 +111,12 @@ format = '[[ $symbol $branch ](fg:color_fg0 bg:color_aqua)]($style)'
 style = "bg:color_aqua"
 format = '[[($all_status$ahead_behind )](fg:color_fg0 bg:color_aqua)]($style)'
 
+[git_state]
+# REBASING / MERGING / CHERRY-PICKING with progress. git_branch alone
+# does not show that a rebase is half-finished.
+style = "bg:color_aqua"
+format = '[[ $state( $progress_current/$progress_total) ](fg:color_red bg:color_aqua)]($style)'
+
 [nodejs]
 symbol = ""
 style = "bg:color_blue"
@@ -128,33 +132,9 @@ symbol = " "
 style = "bg:color_blue"
 format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
 
-[rust]
-symbol = ""
-style = "bg:color_blue"
-format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
-
-[golang]
-symbol = ""
-style = "bg:color_blue"
-format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
-
-[php]
-symbol = ""
-style = "bg:color_blue"
-format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
-
-[java]
-symbol = ""
-style = "bg:color_blue"
-format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
-
-[kotlin]
-symbol = ""
-style = "bg:color_blue"
-format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
-
-[haskell]
-symbol = ""
+[ruby]
+# Rails work lives here: reads .ruby-version / Gemfile via the rbenv shim.
+symbol = ""
 style = "bg:color_blue"
 format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
 
@@ -163,18 +143,42 @@ symbol = ""
 style = "bg:color_blue"
 format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
 
+[direnv]
+# Off by default in starship. The useful case is not "it loaded", it is
+# seeing that the .envrc is blocked, which is when env vars go missing.
+disabled = false
+symbol = ""
+allowed_msg = ""
+not_allowed_msg = " blocked"
+denied_msg = " denied"
+style = "bg:color_bg3"
+format = '[[ $symbol$allowed ](fg:#88CCD4 bg:color_bg3)]($style)'
+
 [docker_context]
 symbol = ""
 style = "bg:color_bg3"
 format = '[[ $symbol( $context) ](fg:#88CCD4 bg:color_bg3)]($style)'
 
-[conda]
-style = "bg:color_bg3"
-format = '[[ $symbol( $environment) ](fg:#88CCD4 bg:color_bg3)]($style)'
+[jobs]
+# Background jobs, e.g. a suspended rails server.
+symbol = ""
+number_threshold = 1
+style = "bg:color_bg1"
+format = '[[ $symbol $number ](fg:color_yellow bg:color_bg1)]($style)'
 
-[pixi]
-style = "bg:color_bg3"
-format = '[[ $symbol( $version)( $environment) ](fg:color_fg0 bg:color_bg3)]($style)'
+[cmd_duration]
+# p10k's command_execution_time. Only appears past min_time.
+min_time = 2000
+style = "bg:color_bg1"
+format = '[[  $duration ](fg:color_yellow bg:color_bg1)]($style)'
+
+[status]
+# Exit code of the last command. p10k showed this by default; starship
+# does not. Only renders when the status is non-zero.
+disabled = false
+map_symbol = false
+style = "bg:color_bg1"
+format = '[[  $status ](fg:color_red bg:color_bg1)]($style)'
 
 [time]
 disabled = false

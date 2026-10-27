@@ -126,7 +126,7 @@ Then open a new shell. The warning is gone and completion works normally. If a f
 
 Two font families are used:
 
-1. **MesloLGS Nerd Font Mono** — fallback for icon glyphs (starship OS icons, LazyVim file-tree icons, zellaude activity symbols, braille art). Install via Homebrew cask (already in the list above).
+1. **MesloLGS Nerd Font Mono** — fallback for icon glyphs (starship OS icons, Neovim file icons, zellaude activity symbols, braille art). Install via Homebrew cask (already in the list above).
 
 2. **GT Pressura LCGV Mono** — primary code/terminal font. **Commercial font from [Grilli Type](https://www.grillitype.com/typeface/gt-pressura). NOT tracked in this public repo due to licensing.** On a new machine you must install it yourself:
    ```bash
@@ -300,7 +300,7 @@ The `.secrets` file is listed under `# Never commit secrets` in `.gitignore`. Ke
 | **kitty** | GT Pressura LCGV Mono 18pt + MesloLGS NF fallback via `symbol_map` | `kitty/Salvaje.conf` | `starship.toml` (24-bit RGB) | Primary terminal. Nerd Font glyph ranges routed to MesloLGS NF automatically. |
 | **Terminal.app** | GTPressuraLCGVMono-Regular 18pt + native macOS font substitution | `Salvaje.terminal` profile | `starship-terminal.toml` (16-color ANSI) | Falls back to named ANSI for colors. Terminal.app has no symbol_map so icon glyphs rely on macOS native font fallback — install MesloLGS NF too so macOS picks it as fallback. |
 | **zellij** | (inherits from host terminal) | `zellij/themes/salvaje.kdl` | — | Layout includes zellaude activity bar |
-| **Neovide** (GUI) | GT Pressura LCGV Mono 16pt + MesloLGS NF fallback | uses pwnvim config (~/.config/pwnvim) via NVIM_APPNAME | — | Separate distro (pwnwriter/pwnvim) to keep the GUI experience distinct from terminal LazyVim. See pwnvim section below. |
+| **Neovide** (GUI) | GT Pressura LCGV Mono 16pt + MesloLGS NF fallback | uses pwnvim config (~/.config/pwnvim) via NVIM_APPNAME | — | Separate distro (pwnwriter/pwnvim) to keep the GUI experience distinct from terminal nvim. See pwnvim section below. |
 
 `.zshrc` automatically switches `$STARSHIP_CONFIG` based on `$TERM_PROGRAM`:
 
@@ -339,7 +339,7 @@ Segment order (left → right): OS icon + user → directory → git branch/stat
 
 ## zellij + zellaude
 
-Zellij runs with the Salvaje theme and the [zellaude](https://github.com/ishefi/zellaude) plugin replacing the default tab bar. zellaude shows live Claude Code activity per session:
+Zellij is **not** auto-started by kitty; run `zellij` manually when you want a session. It uses the Salvaje theme and the [zellaude](https://github.com/ishefi/zellaude) plugin replacing the default tab bar. zellaude shows live Claude Code activity per session:
 
 | Symbol | Meaning |
 |---|---|
@@ -360,9 +360,34 @@ Click any tab to switch; click a `⚠` tab to jump straight to the pane asking f
 
 ---
 
+## Neovim (terminal)
+
+Minimal config at `~/.config/nvim/`, no distro. Plain Vim behaviour (native `:` cmdline, no popups), focused on Rails + JavaScript. Requires **Neovim 0.11+**.
+
+```
+init.lua                 options, keymaps, autocmds, lazy.nvim bootstrap
+lua/plugins/editor.lua   treesitter, fzf-lua, gitsigns, vim-surround, mini.icons
+lua/plugins/lsp.lua      mason, native LSP (vim.lsp.enable), conform format-on-save
+lua/plugins/rails.lua    vim-rails, vim-bundler
+lua/plugins/claude.lua   claudecode.nvim (native terminal)
+colors/salvaje*.lua      Salvaje colorschemes
+```
+
+One-time setup on a new machine:
+
+```bash
+brew install neovim tree-sitter-cli ripgrep fd fzf
+nvim --headless "+Lazy! sync" +qa
+nvim "+MasonInstall typescript-language-server eslint-lsp tailwindcss-language-server glsl_analyzer prettier"
+```
+
+`ruby-lsp` comes from each project's bundle via the rbenv shim (`/opt/rbenv/shims/ruby-lsp`), never from mason. `clangd` comes from the Xcode Command Line Tools. Servers whose executable is missing are skipped silently.
+
+Key bindings (leader = Space): `<leader>ff` files, `<leader>fg` grep, `<leader>fb` buffers, `<leader>fr` resume picker, `-` netrw, `<leader>ac` Claude Code. LSP uses Neovim's built-in maps (`K`, `grn`, `gra`, `grr`, `gri`) plus `gd`. Tests: `:Rails` (file) and `:.Rails` (test under cursor). Format on save toggles with `:FormatToggle`.
+
 ## Neovide + pwnvim (GUI editor)
 
-Terminal `nvim` uses **LazyVim** at `~/.config/nvim/`. The Neovide GUI uses a completely separate distro — **[pwnwriter/pwnvim](https://github.com/pwnwriter/pwnvim)** — at `~/.config/pwnvim/`, so the two don't share plugins, keymaps, or state. Isolation is handled via Neovim's native `NVIM_APPNAME` env var.
+Terminal `nvim` uses the minimal config at `~/.config/nvim/`. The Neovide GUI uses a completely separate distro — **[pwnwriter/pwnvim](https://github.com/pwnwriter/pwnvim)** — at `~/.config/pwnvim/`, so the two don't share plugins, keymaps, or state. Isolation is handled via Neovim's native `NVIM_APPNAME` env var.
 
 ### How it's wired
 
@@ -382,7 +407,7 @@ neovim loads:
     state:  ~/.local/state/pwnvim/
 ```
 
-Terminal `nvim` is untouched — it still uses `~/.config/nvim/` (LazyVim).
+Terminal `nvim` is untouched — it still uses `~/.config/nvim/`.
 
 ### Install on a new machine
 
